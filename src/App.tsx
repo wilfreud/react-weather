@@ -28,8 +28,8 @@ function App() {
   });
   const [isReady, setReady] = useState(false);
   const [isError, setError] = useState(false);
-  const [lat, setLat] = useState<string>("12.6937");
-  const [lon, setLong] = useState<string>("-17.4441");
+  const [lat, setLat] = useState<string>("64.128288");
+  const [lon, setLong] = useState<string>("-17,4441");
 
   const getTempColor = (temp: number) => {
     if (temp < 10) return "#67b0e8"; // cold (blue)
