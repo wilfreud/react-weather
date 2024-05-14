@@ -21,7 +21,9 @@
   margin-bottom: 20px;
   border: solid 1px white;
   border-radius: 4px;
-  width: 50%;
+  max-width: 50%;
+  width: auto;
+  width: 300px;
 }
 
 hr {
