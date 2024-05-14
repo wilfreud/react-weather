@@ -13,6 +13,7 @@ interface WeatherData {
   city: string;
   sunrise: string;
   sunset: string;
+  currentTimeInRegion: string;
 }
 
 function App() {
@@ -25,11 +26,12 @@ function App() {
     city: "",
     sunrise: "",
     sunset: "",
+    currentTimeInRegion: "",
   });
   const [isReady, setReady] = useState(false);
   const [isError, setError] = useState(false);
-  const [lat, setLat] = useState<string>("64.128288");
-  const [lon, setLong] = useState<string>("-17,4441");
+  const [lat, setLat] = useState<string>("55.75582600");
+  const [lon, setLong] = useState<string>("37.61729990");
 
   const getTempColor = (temp: number) => {
     if (temp < 10) return "#67b0e8"; // cold (blue)
@@ -56,8 +58,8 @@ function App() {
         const humidity = response.data.main.humidity;
         const wind = (response.data.wind.speed * 3.6).toFixed(2);
         const city = response.data.name;
-        console.log(response.data.name);
 
+        // lever et coucher du soleil
         const sunrise = new Date(
           response.data.sys.sunrise * 1000
         ).toLocaleTimeString([], {
@@ -73,6 +75,17 @@ function App() {
           hour12: true,
         });
 
+        // heure locale
+        const timezoneOffset = response.data.timezone;
+        const currentTime = new Date();
+        const currentTimeInRegion = new Date(
+          currentTime.getTime() + timezoneOffset * 1000
+        ).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+
         setWeather({
           temp,
           desc,
@@ -82,6 +95,7 @@ function App() {
           city,
           sunrise,
           sunset,
+          currentTimeInRegion,
         });
       })
       .catch((error) => {
@@ -132,6 +146,7 @@ function App() {
           src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
           alt="Icône météo"
         />
+        <p>Heure locale: {weather.currentTimeInRegion}</p>
         <p>Humidité : {weather.humidity} %</p>
         <p>Vent : {weather.wind} km/h</p>
 
