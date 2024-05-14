@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { WEATHER_API_KEY } from "./environment";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 interface WeatherData {
   temp: string;
@@ -10,6 +11,8 @@ interface WeatherData {
   humidity: string;
   wind: string;
   city: string;
+  sunrise: string;
+  sunset: string;
 }
 
 function App() {
@@ -20,6 +23,8 @@ function App() {
     humidity: "",
     wind: "",
     city: "",
+    sunrise: "",
+    sunset: "",
   });
   const [isReady, setReady] = useState(false);
   const [isError, setError] = useState(false);
@@ -39,8 +44,8 @@ function App() {
     axios
       .get(API_URL, {
         params: {
-          lat,
-          lon,
+          lat: lat || 0,
+          lon: lon || 0,
           appid: WEATHER_API_KEY,
         },
       })
@@ -50,7 +55,23 @@ function App() {
         const icon = response.data.weather[0].icon;
         const humidity = response.data.main.humidity;
         const wind = (response.data.wind.speed * 3.6).toFixed(2);
-        const city = response.data.city;
+        const city = response.data.name;
+        console.log(response.data.name);
+
+        const sunrise = new Date(
+          response.data.sys.sunrise * 1000
+        ).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        const sunset = new Date(
+          response.data.sys.sunset * 1000
+        ).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
 
         setWeather({
           temp,
@@ -59,6 +80,8 @@ function App() {
           humidity: humidity.toString(),
           wind: wind.toString(),
           city,
+          sunrise,
+          sunset,
         });
       })
       .catch((error) => {
@@ -71,7 +94,10 @@ function App() {
   }, [lat, lon, API_URL]);
 
   if (isError) {
-    return <p>Erreur lors de la récupération des données</p>;
+    toast.error("Erreur lors de la récupération des données météo", {
+      duration: 1500,
+    });
+    setError(false);
   }
 
   if (isReady) {
@@ -80,20 +106,26 @@ function App() {
     return (
       <div className="App" style={{ backgroundColor: tempColor }}>
         <div className="InputContainer">
+          <h3>Coordonnées</h3>
+          <label htmlFor="lat">Latitude</label>
           <input
-            type="text"
+            id="lat"
+            type="number"
             placeholder="Latitude"
             value={lat}
             onChange={(e) => setLat(e.target.value)}
           />
+          <label htmlFor="lon">Longitude</label>
           <input
-            type="text"
+            id="lon"
+            type="number"
             placeholder="Longitude"
             value={lon}
             onChange={(e) => setLong(e.target.value)}
           />
         </div>
-        <p>Ville: {weather.city}</p>
+
+        <p>Ville: {weather.city || "???"}</p>
         <p>Température : {weather.temp} °C</p>
         <p>Description : {weather.desc}</p>
         <img
@@ -102,6 +134,9 @@ function App() {
         />
         <p>Humidité : {weather.humidity} %</p>
         <p>Vent : {weather.wind} km/h</p>
+
+        <p>Lever du soleil: {weather.sunrise}</p>
+        <p>Coucher du soleil: {weather.sunset}</p>
       </div>
     );
   } else {
